@@ -1,0 +1,48 @@
+name: Dispatch Website Regeneration
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "content/**"
+      - ".github/workflows/dispatch-website-regeneration.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify website repository
+        env:
+          TARGET_OWNER: sgoley
+          TARGET_REPO: sgoley.github.io
+          DISPATCH_TOKEN: ${{ secrets.WEBSITE_REPO_DISPATCH_TOKEN }}
+          STREAMLIT_SHA: ${{ github.sha }}
+          STREAMLIT_REF: ${{ github.ref_name }}
+          STREAMLIT_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${DISPATCH_TOKEN}" ]; then
+            echo "Missing WEBSITE_REPO_DISPATCH_TOKEN secret."
+            exit 1
+          fi
+
+          curl --fail --silent --show-error \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${DISPATCH_TOKEN}" \
+            "https://api.github.com/repos/${TARGET_OWNER}/${TARGET_REPO}/dispatches" \
+            -d @- <<EOF
+          {
+            "event_type": "streamlit-content-updated",
+            "client_payload": {
+              "streamlit_sha": "${STREAMLIT_SHA}",
+              "streamlit_ref": "${STREAMLIT_REF}",
+              "streamlit_repo": "${STREAMLIT_REPO}"
+            }
+          }
+          EOF

@@ -36,6 +36,18 @@ https://YOUR-STREAMLIT-APP.streamlit.app/?embed=true
 
 The root static `index.html` is already set up to embed this app.
 
+## Cross-repo article regeneration
+
+This repo includes a workflow that dispatches an event to the website repo when `content/**` changes on `main`:
+
+- Workflow: `.github/workflows/dispatch-website-regeneration.yml`
+- Event sent to: `sgoley/sgoley.github.io`
+- Event type: `streamlit-content-updated`
+
+Required secret in this repo:
+
+- `WEBSITE_REPO_DISPATCH_TOKEN` (token able to dispatch events to `sgoley/sgoley.github.io`)
+
 ## Attribution
 
 Highly inspired by [openrouter-streamlit-chat](https://github.com/a0w3b/openrouter-streamlit-chat) by [Anssi Ovaska](https://github.com/a0w3b).
