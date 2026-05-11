@@ -1,10 +1,9 @@
 # Streamlit Chat (Embed-Ready)
 
-This app is now a **single-screen chat interface** intended to be embedded into the static site homepage via an `<iframe>`.
+This app is a **single-screen chat interface** intended to be embedded into the static site homepage via an `<iframe>`.
 
 ## What changed
 
-- Multipage Streamlit navigation was removed.
 - Chat UI was rebuilt into an iMessage-style thread (blue user bubbles, dark gray assistant bubbles).
 - The assistant is restricted to markdown content inside the repository `content/` directory.
 - `streamlit.toml` disables sidebar page navigation (`showSidebarNavigation = false`).
@@ -41,12 +40,12 @@ The root static `index.html` is already set up to embed this app.
 This repo includes a workflow that dispatches an event to the website repo when `content/**` changes on `main`:
 
 - Workflow: `.github/workflows/dispatch-website-regeneration.yml`
-- Event sent to: `sgoley/sgoley.github.io`
+- Event sent to: `<user>/<user>.github.io`
 - Event type: `streamlit-content-updated`
 
 Required secret in this repo:
 
-- `WEBSITE_REPO_DISPATCH_TOKEN` (token able to dispatch events to `sgoley/sgoley.github.io`)
+- `WEBSITE_REPO_DISPATCH_TOKEN` (token able to dispatch events to `<user>/<user>.github.io`)
 
 ## Attribution
 
