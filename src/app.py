@@ -2,6 +2,7 @@ import html
 import os
 from pathlib import Path
 
+import markdown as md
 import streamlit as st
 from api.openrouter_client import OpenRouterClient
 from dotenv import load_dotenv
@@ -112,6 +113,77 @@ st.markdown(
     border-radius: 18px 18px 18px 6px;
 }
 
+.bubble.assistant > :first-child {
+    margin-top: 0;
+}
+
+.bubble.assistant > :last-child {
+    margin-bottom: 0;
+}
+
+.bubble.assistant p,
+.bubble.assistant ul,
+.bubble.assistant ol,
+.bubble.assistant pre,
+.bubble.assistant table,
+.bubble.assistant blockquote {
+    margin: 0.35rem 0 0.55rem;
+}
+
+.bubble.assistant ul,
+.bubble.assistant ol {
+    padding-left: 1.1rem;
+}
+
+.bubble.assistant li + li {
+    margin-top: 0.22rem;
+}
+
+.bubble.assistant code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    background: rgba(255, 255, 255, 0.09);
+    border-radius: 6px;
+    padding: 0.08rem 0.32rem;
+    font-size: 0.88em;
+}
+
+.bubble.assistant pre {
+    background: #18191c;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 0.58rem 0.72rem;
+    overflow-x: auto;
+}
+
+.bubble.assistant pre code {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+}
+
+.bubble.assistant blockquote {
+    border-left: 3px solid rgba(255, 255, 255, 0.25);
+    margin-left: 0;
+    padding-left: 0.65rem;
+    color: #d4d4d8;
+}
+
+.bubble.assistant table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.bubble.assistant th,
+.bubble.assistant td {
+    border: 1px solid var(--line);
+    padding: 0.32rem 0.45rem;
+    text-align: left;
+}
+
+.bubble.assistant th {
+    background: rgba(255, 255, 255, 0.06);
+}
+
 .empty-state {
     color: var(--muted);
     text-align: center;
@@ -183,13 +255,25 @@ def _int_config(name: str, fallback: int) -> int:
         return fallback
 
 
+def _render_assistant_markdown(content: str) -> str:
+    # Escape raw HTML so only markdown syntax is rendered in chat bubbles.
+    escaped_content = html.escape(content)
+    return md.markdown(
+        escaped_content,
+        extensions=["fenced_code", "tables", "sane_lists", "nl2br"],
+    )
+
+
 def _message_html(message: Message) -> str:
     is_user = message.sender.lower() == "user"
     role = "user" if is_user else "assistant"
-    safe_content = html.escape(message.content).replace("\n", "<br>")
+    if is_user:
+        rendered_content = html.escape(message.content).replace("\n", "<br>")
+    else:
+        rendered_content = _render_assistant_markdown(message.content)
     return f"""
 <div class="message-row {role}">
-  <div class="bubble {role}">{safe_content}</div>
+  <div class="bubble {role}">{rendered_content}</div>
 </div>
 """
 
